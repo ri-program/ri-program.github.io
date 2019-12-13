@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<title>Document</title>
+<script>
+window.onload = function (){
+  let moji = ["★韓国旅行に行きました★ ランダムで４枚の写真が表示されます！！<br>"]
+  
+  let mybtn1= document.querySelector("#mybutton1");
+  mybtn1.onclick = function(event){
+    let x = Math.floor(4*Math.random())
+    console.log(x)
+    
+    let result = moji
+    console.log(result)
+    
+    if (x == 0){
+        result = result +"<img src='korea.jpg'>";
+    }
+    if (x == 1){
+        result = result +"<img src='korea2.jpg'>";
+    }
+    if (x == 2){
+        result = result +"<img src='lunch.jpg'>";
+    }
+    if (x == 3){
+        result = result +"<img src='dinner.jpg'>";
+    }
+    view.innerHTML = result;
+  }
+  
+  console.log(view)
+};
+  
+</script>
+</head>
+<body>
+ <body style="background: url(sora.png)no-repeat;">
+  <p><button id="mybutton1">summer holiday</button></p>
+    <div id="main">
+      <p id="view"></p>
+    </div>
+</body>
+</html>
