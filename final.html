@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>最終課題</title>
+
+<style>
+    .center-box {
+    text-align:center;
+  }
+  .large-text {
+    font-size: 4.0rem;
+  }
+</style>
+<body bgcolor="#DDFFFF">
+    <button id="speak">PUSH</button>
+    <audio src="shine1.mp3" autoplay loop></audio>
+</body>
+    
+<!-- 1. ここにP5.jsを読み込む -->
+<script src="https://cdn.jsdelivr.net/npm/p5"></script>
+<script src="https://unpkg.com/ml5@0.4.3/dist/ml5.min.js">
+</script>
+
+<!-- 2.以下にsetup関数とdraw関数を定義 -->
+<script>
+  // 発話機能をインスタンス化
+  let msg = new SpeechSynthesisUtterance();
+  let voices = window.speechSynthesis.getVoices();
+
+  function speak(text) {
+    // 以下オプション設定
+    msg.voice = voices[7]; // 7:Google 日本人 ja-JP ※他は英語のみ
+    msg.volume = 1.0; // 音量 min 0 ~ max 1
+    msg.rate = 1.0; // 速度 min 0 ~ max 10
+    msg.pitch = 1.0; // 音程 min 0 ~ max 2
+
+    msg.text = text1; // 喋る内容
+      
+    msg.lang = 'ja-JP'; // en-US or ja-JP
+    // msg.lang = 'en-US'; // en-US or ja-JP
+
+    // 発話実行
+    speechSynthesis.speak(msg);
+  }
+  
+  // 終了時の処理
+  msg.onend = function (event) {
+    console.log("End: ",text1);
+  }
+  
+  let text1 = "目の周りがハートに！！手首も見せてみて";
+    
+  let button = document.querySelector("#speak");
+    button.onclick = function () {
+    speak(text1);
+  }
+
+// Copyright (c) 2019 ml5
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
+/* ===
+ml5 Example
+Real time Object Detection using YOLO and p5.js
+=== */
+
+let video;
+let yolo;
+let status;
+let objects = [];
+let poseNet;
+let poses = [];
+let skeletons = [];
+    
+function preload(){
+    eye1 = loadImage("../pic1/heart.png")
+    eye2 = loadImage("../pic1/heart1.png")
+    wrist = loadImage("../pic1/kirakira.png")
+}
+    
+function setup() {
+  createCanvas(640, 480);
+  video = createCapture(VIDEO);
+
+  // Create a YOLO method
+  yolo = ml5.YOLO(video, startDetecting);
+  poseNet = ml5.poseNet(video, modelReady);
+    
+  poseNet.on('pose', function (results) {
+      poses = results;
+  });
+
+  // Hide the original video
+  video.hide();
+  status = select('#status');
+}
+
+function modelReady() {
+  select('#status').html('Model Loaded');
+}
+    
+function draw() {
+  image(video, 0, 0, width, height);
+  for (let i = 0; i < objects.length; i++) {
+    noStroke();
+    fill(0, 255, 0);
+    text(objects[i].label, objects[i].x * width, objects[i].y * height - 5);
+    noFill();
+    strokeWeight(4);
+    stroke(0, 255, 0);
+    rect(objects[i].x * width, objects[i].y * height, objects[i].w * width, objects[i].h * height);
+  }
+  drawKeypoints();
+  drawSkeleton();
+}
+
+function drawKeypoints()  {
+  // Loop through all the poses detected
+  for (let i = 0; i < poses.length; i++) {
+    // For each pose detected, loop through all the keypoints
+    for (let j = 0; j < poses[i].pose.keypoints.length; j++) {
+      // A keypoint is an object describing a body part (like rightArm or leftShoulder)
+      let keypoint = poses[i].pose.keypoints[j];
+      let noses = poses[i].pose.keypoints[j];
+      let lefteye = poses[i].pose.keypoints[j];
+      let righteye = poses[i].pose.keypoints[j];
+      let wrists = poses[i].pose.keypoints[j];
+      // Only draw an ellipse is the pose probability is bigger than 0.2
+      if (keypoint.score > 0.2) {
+        noStroke();
+        if (j==0) {
+            text("カワイイ",noses.position.x-20, noses.position.y-10, 75, 75);
+        }
+        if (j==1) {
+            image(eye1,lefteye.position.x+10, lefteye.position.y+10, 30, 30);
+        }
+        if (j==2) {
+            image(eye2,righteye.position.x-35, righteye.position.y+10, 30, 30);
+        }
+        if (j==9){
+            image(wrist,wrists.position.x, wrists.position.y, 60, 60);
+            
+        };
+      }
+    }
+  }
+}
+
+function drawSkeleton() {
+  // Loop through all the skeletons detected
+  for (let i = 0; i < poses.length; i++) {
+    // For every skeleton, loop through all body connections
+    for (let j = 0; j < poses[i].skeleton.length; j++) {
+      let partA = poses[i].skeleton[j][0];
+      let partB = poses[i].skeleton[j][1];
+      stroke(255, 0, 0);
+      line(partA.position.x, partA.position.y, partB.position.x, partB.position.y);
+    }
+  }
+}
+    
+function startDetecting() {
+  status.html('☆☆face painting☆☆');
+  detect();
+}
+
+function detect() {
+  yolo.detect(function(err, results) {
+    objects = results;
+    detect();
+  });
+}
+  
+</script>
+</head>
+<body>
+<div id="status">Model loading...</div>
+<div id="result"></div>
+<div id="probability"></div>
+</body>
+</html>
